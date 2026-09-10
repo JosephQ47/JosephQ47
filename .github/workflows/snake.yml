@@ -2,15 +2,15 @@ name: Generate Matrix Snake
 
 on:
   schedule:
-    # 每天北京时间 08:10 刷新
+    # 每天北京时间 08:10 刷新（比 metrics 抄 10 分钟，避开并发提交）
     - cron: "10 0 * * *"
   workflow_dispatch:
-  push:
-    branches:
-      - main
 
 # 把贡献热力图变成一条绿色的蛇，生成 SVG 提交到 assets/
-# 无需额外 token，用内置 GITHUB_TOKEN 即可
+# 无需额外 token，用内置 GITHUB_TOKEN 即可。
+#
+# 注意：刻意不在 push 时触发。贡献数据与本次 push 的内容无关，
+#      而三个 workflow 同时往 main 提交会互相顶掉（首次部署就栩在这上面）。
 
 jobs:
   snake:
@@ -29,6 +29,7 @@ jobs:
 
       - name: Move into assets and commit
         run: |
+          set -euo pipefail
           mkdir -p assets
           mv dist/matrix-snake.svg assets/matrix-snake.svg
           git config user.name  "github-actions[bot]"
@@ -36,7 +37,17 @@ jobs:
           git add assets/matrix-snake.svg
           if git diff --staged --quiet; then
             echo "no change"
-          else
-            git commit -m "chore: refresh matrix snake [skip ci]"
-            git push
+            exit 0
           fi
+          git commit -m "chore: refresh matrix snake [skip ci]"
+          # 可能有另一个 workflow 刚推过，先 rebase 再推，最多试 3 次
+          for i in 1 2 3; do
+            if git pull --rebase --autostash origin main && git push; then
+              echo "pushed on attempt $i"
+              exit 0
+            fi
+            echo "attempt $i failed, retrying"
+            sleep $((i * 5))
+          done
+          echo "push failed after 3 attempts" >&2
+          exit 1

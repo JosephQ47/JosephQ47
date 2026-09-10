@@ -5,19 +5,19 @@ on:
     # 每天北京时间 08:00 刷新
     - cron: "0 0 * * *"
   workflow_dispatch:
-  push:
-    branches:
-      - main
 
 # 说明：本 workflow 把统计图表在你自己的仓库里生成成 SVG 并提交，
 #      不依赖任何第三方公共实例（github-readme-stats 等已停服）。
 # 前置：需要一个 PAT 存到仓库 Secrets，名字 METRICS_TOKEN
 #      生成地址 https://github.com/settings/tokens
-#      经典 token 勾选 read:user；想让统计涵盖私有仓库的工作量再加 repo
+#      经典 token 勾选 read:user；仓库全是 private 时还得加 repo，
+#      不然统计基本是空的。
 #
 # 隐私说明：加了 repo scope 后，metrics 能读到私有仓库，但本配置只输出
 #          汇总数字与语言占比，不含 repositories 插件，所以私有仓库的
 #          名字不会出现在生成的 SVG 里。改配置时请留意这一点。
+#
+# 注意：刻意不在 push 时触发，避免与其他 workflow 并发往 main 提交。
 
 jobs:
   metrics:
@@ -86,12 +86,22 @@ jobs:
 
       - name: Commit generated SVG
         run: |
+          set -euo pipefail
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add assets/metrics-*.svg
           if git diff --staged --quiet; then
             echo "no change"
-          else
-            git commit -m "chore: refresh matrix metrics [skip ci]"
-            git push
+            exit 0
           fi
+          git commit -m "chore: refresh matrix metrics [skip ci]"
+          for i in 1 2 3; do
+            if git pull --rebase --autostash origin main && git push; then
+              echo "pushed on attempt $i"
+              exit 0
+            fi
+            echo "attempt $i failed, retrying"
+            sleep $((i * 5))
+          done
+          echo "push failed after 3 attempts" >&2
+          exit 1
