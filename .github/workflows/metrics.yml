@@ -46,10 +46,11 @@ jobs:
           #    实测 var() 在输出里出现 0 次，变量根本没人读。
           #    只能用下面那种属性选择器覆盖。
           #
-          # 2. h2 必须给行高。它带 class="field"，规则是 display:flex
+          # 2. h2 必须把 box 撑开。它带 class="field"，规则是 display:flex
           #    加 line-height:normal，实测 box 只有 21px 而字号 16px。
           #    把 SVG 当文档直接打开看不出问题，但用 img 引入时
           #    超出 box 的部分会被边界裁掉，标题就缺下半截。
+          #    padding-bottom 或 line-height 都能解决，这里用前者。
           #
           # 3. 不要用 display:none 隐藏 h2。那会让 metrics 测高时当它
           #    不存在，但输出的 SVG 里元素仍在。要隐藏得用
@@ -69,6 +70,6 @@ jobs:
             path[fill="#30a14e"] { fill: #00D634; }
             path[fill="#216e39"] { fill: #00FF41; }
             svg { background: #0D0208; }
-            /* line-height 是必需的，不是装饰 —— 见上面第 2 条 */
-            h2 { color: #00FF41; line-height: 2; }
+            /* padding-bottom 是必需的，不是装饰 —— 见上面第 2 条 */
+            h2 { color: #00FF41; padding-bottom: 8px; }
             text, tspan { fill: #008F11; }
