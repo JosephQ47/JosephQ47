@@ -38,17 +38,32 @@ jobs:
           verify: yes
           plugin_isocalendar: yes
           plugin_isocalendar_duration: full-year
+          # ────────────────────────────────────────────────────
+          # 三个踩过的坑，改这段前先读：
+          #
+          # 1. 不要写 --color-calendar-graph-day-* 这类 CSS 变量。
+          #    isocalendar 把颜色写死在每个 path 元素的 fill 属性上，
+          #    实测 var() 在输出里出现 0 次，变量根本没人读。
+          #    只能用下面的属性选择器覆盖。
+          #
+          # 2. 不要用 display:none 隐藏 h2。那会让 metrics 测高时
+          #    当它不存在，但输出的 SVG 里元素仍在，结果标题
+          #    冒出画布被裁掉一半。要隐藏得用 visibility:hidden（仍占位）。
+          #
+          # 3. 注释里不能出现尖括号。extras_css 会被内嵌进 SVG，
+          #    而 SVG 按 XML 解析，CSS 注释对 XML 不是注释 ——
+          #    一个 "less-than" 就会被当成标签开头，整个 SVG 直接报废。
+          # ────────────────────────────────────────────────────
           extras_css: |
-            /* 日历格子五级绿色渐变，用 GitHub 标准变量名 */
-            :root {
-              --color-calendar-graph-day-bg:    #0D0208;
-              --color-calendar-graph-day-L1-bg: #003B00;
-              --color-calendar-graph-day-L2-bg: #006400;
-              --color-calendar-graph-day-L3-bg: #00C82C;
-              --color-calendar-graph-day-L4-bg: #00FF41;
-            }
-            body, svg { background: #0D0208; }
-            /* 插件自带标题原本是绿字叠绿框，糊成一团；
-               README 里已经有章节标题，这里隐掉 */
-            h2, .title { display: none; }
-            text, tspan, .value, .field { fill: #008F11; color: #008F11; }
+            /* 空格子：用暗绿而不是背景色 #0D0208。
+               与背景同色会让柱子悬在虚空里，看不出是个日历。 */
+            path[fill="#ebedf0"] { fill: #04170B; }
+            /* 贡献量四级渐变，接到荧光绿 */
+            path[fill="#9be9a8"] { fill: #006400; }
+            path[fill="#40c463"] { fill: #00A82C; }
+            path[fill="#30a14e"] { fill: #00D634; }
+            path[fill="#216e39"] { fill: #00FF41; }
+            svg { background: #0D0208; }
+            /* 标题保留并染绿，不隐藏 —— 见上面第 2 条 */
+            h2 { color: #00FF41; }
+            text, tspan { fill: #008F11; }
