@@ -8,12 +8,16 @@
   ║    assets/matrix-banner.svg    手写数字雨横幅   banner.yml         ║
   ║    assets/matrix-footer.svg    手写数字雨页脚   banner.yml         ║
   ║    assets/metrics-calendar.svg 3D 等距提交日历  metrics.yml        ║
+  ║                                                                   ║
+  ║  URL 尾部的 ?v=N 是给 GitHub camo 缓存用的版本参数。              ║
+  ║  camo 按源 URL 做缓存，文件改了但 URL 没改就会一直回旧图。       ║
+  ║  重新生成 SVG 后若主页不更新，把 N 加一。                        ║
   ╚═══════════════════════════════════════════════════════════════════╝
 -->
 
 <!-- ①  顶部横幅：手写 Matrix 数字雨（自托管，永不失效） -->
 <p align="center">
-  <img src="https://raw.githubusercontent.com/JosephQ47/JosephQ47/main/assets/matrix-banner.svg" alt="Joseph — Machine Vision Researcher & Embedded Software Engineer" width="100%" />
+  <img src="https://raw.githubusercontent.com/JosephQ47/JosephQ47/main/assets/matrix-banner.svg?v=2" alt="Joseph — Machine Vision Researcher & Embedded Software Engineer" width="100%" />
 </p>
 
 <!-- ②  打字机轮播 -->
@@ -111,7 +115,7 @@ $ cat ./access_policy
 
 <!-- 3D 等距提交日历，由 .github/workflows/metrics.yml 自动生成 -->
 <p align="center">
-  <img src="https://raw.githubusercontent.com/JosephQ47/JosephQ47/main/assets/metrics-calendar.svg" alt="commit calendar" width="100%" />
+  <img src="https://raw.githubusercontent.com/JosephQ47/JosephQ47/main/assets/metrics-calendar.svg?v=2" alt="commit calendar" width="100%" />
 </p>
 
 <p align="center">
@@ -138,4 +142,4 @@ $ ./connect --topic
 ```
 
 <!-- ⑧  底部页脚：手写 Matrix 数字雨 -->
-<img src="https://raw.githubusercontent.com/JosephQ47/JosephQ47/main/assets/matrix-footer.svg" alt="follow the white rabbit" width="100%" />
+<img src="https://raw.githubusercontent.com/JosephQ47/JosephQ47/main/assets/matrix-footer.svg?v=2" alt="follow the white rabbit" width="100%" />
