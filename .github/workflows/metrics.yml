@@ -6,16 +6,19 @@ on:
     - cron: "0 0 * * *"
   workflow_dispatch:
 
-# 在本仓库内生成 3D 等距提交日历 SVG 并提交，
-# 不依赖任何第三方公共实例（github-readme-stats 等已停服）。
+# 生成 3D 等距提交日历 SVG。
+#
+# 重要：lowlighter/metrics 自己会通过 GitHub API 把产物提交进仓库
+#      （committer_token 默认用内置 GITHUB_TOKEN）。
+#      所以这里故意没有 actions/checkout，也不要再加手动的
+#      git add / commit / push 步骤 —— workspace 不是 git 仓库，
+#      git 会直接 fatal 并返回 exit code 128。
 #
 # 前置：仓库 Secrets 里需要 METRICS_TOKEN（classic PAT）
 #      scope：read:user；仓库全是 private 时还得加 repo，不然统计是空的。
 #
-# 隐私：本配置只用 isocalendar 插件，只输出“哪天有多少提交”的格子，
-#      不含 repositories 插件，私有仓库名不会出现在生成的 SVG 里。
-#
-# 注意：刻意不在 push 时触发，避免与 banner.yml 并发往 main 提交。
+# 隐私：只用 isocalendar 插件，只输出“哪天有多少提交”的格子，
+#      不含 repositories 插件，私有仓库名不会出现在 SVG 里。
 
 jobs:
   calendar:
@@ -27,49 +30,25 @@ jobs:
         uses: lowlighter/metrics@latest
         with:
           token: ${{ secrets.METRICS_TOKEN }}
+          committer_branch: main
+          committer_message: "chore: refresh matrix calendar [skip ci]"
           filename: assets/metrics-calendar.svg
           base: ""
           config_timezone: Asia/Shanghai
-          # 先用官方 dark 主题打底，再做少量绿色化。
-          # 比用 !important 硬覆盖可靠：原先网格底板会渲染成白色。
-          config_theme: dark
+          verify: yes
           plugin_isocalendar: yes
           plugin_isocalendar_duration: full-year
           extras_css: |
-            /* 日历格子五级渐变，用 GitHub 标准变量名，
-               isocalendar 的 3D 柱体与底板都读这几个 */
+            /* 日历格子五级绿色渐变，用 GitHub 标准变量名 */
             :root {
               --color-calendar-graph-day-bg:    #0D0208;
               --color-calendar-graph-day-L1-bg: #003B00;
               --color-calendar-graph-day-L2-bg: #006400;
               --color-calendar-graph-day-L3-bg: #00C82C;
               --color-calendar-graph-day-L4-bg: #00FF41;
-              --color-calendar-graph-day-border: #0D0208;
             }
             body, svg { background: #0D0208; }
             /* 插件自带标题原本是绿字叠绿框，糊成一团；
                README 里已经有章节标题，这里隐掉 */
             h2, .title { display: none; }
             text, tspan, .value, .field { fill: #008F11; color: #008F11; }
-
-      - name: Commit generated SVG
-        run: |
-          set -euo pipefail
-          git config user.name  "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add assets/metrics-calendar.svg
-          if git diff --staged --quiet; then
-            echo "no change"
-            exit 0
-          fi
-          git commit -m "chore: refresh matrix calendar [skip ci]"
-          for i in 1 2 3; do
-            if git pull --rebase --autostash origin main && git push; then
-              echo "pushed on attempt $i"
-              exit 0
-            fi
-            echo "attempt $i failed, retrying"
-            sleep $((i * 5))
-          done
-          echo "push failed after 3 attempts" >&2
-          exit 1
