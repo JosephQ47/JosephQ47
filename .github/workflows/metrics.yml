@@ -39,18 +39,23 @@ jobs:
           plugin_isocalendar: yes
           plugin_isocalendar_duration: full-year
           # ────────────────────────────────────────────────────
-          # 三个踩过的坑，改这段前先读：
+          # 四个实测踩过的坑，改这段前先读：
           #
           # 1. 不要写 --color-calendar-graph-day-* 这类 CSS 变量。
           #    isocalendar 把颜色写死在每个 path 元素的 fill 属性上，
           #    实测 var() 在输出里出现 0 次，变量根本没人读。
-          #    只能用下面的属性选择器覆盖。
+          #    只能用下面那种属性选择器覆盖。
           #
-          # 2. 不要用 display:none 隐藏 h2。那会让 metrics 测高时
-          #    当它不存在，但输出的 SVG 里元素仍在，结果标题
-          #    冒出画布被裁掉一半。要隐藏得用 visibility:hidden（仍占位）。
+          # 2. h2 必须给行高。它带 class="field"，规则是 display:flex
+          #    加 line-height:normal，实测 box 只有 21px 而字号 16px。
+          #    把 SVG 当文档直接打开看不出问题，但用 img 引入时
+          #    超出 box 的部分会被边界裁掉，标题就缺下半截。
           #
-          # 3. 注释里不能出现尖括号。extras_css 会被内嵌进 SVG，
+          # 3. 不要用 display:none 隐藏 h2。那会让 metrics 测高时当它
+          #    不存在，但输出的 SVG 里元素仍在。要隐藏得用
+          #    visibility:hidden（仍占位），不过那样顶部会空一块。
+          #
+          # 4. 注释里不能出现尖括号。extras_css 会被内嵌进 SVG，
           #    而 SVG 按 XML 解析，CSS 注释对 XML 不是注释 ——
           #    一个 "less-than" 就会被当成标签开头，整个 SVG 直接报废。
           # ────────────────────────────────────────────────────
@@ -64,6 +69,6 @@ jobs:
             path[fill="#30a14e"] { fill: #00D634; }
             path[fill="#216e39"] { fill: #00FF41; }
             svg { background: #0D0208; }
-            /* 标题保留并染绿，不隐藏 —— 见上面第 2 条 */
-            h2 { color: #00FF41; }
+            /* line-height 是必需的，不是装饰 —— 见上面第 2 条 */
+            h2 { color: #00FF41; line-height: 2; }
             text, tspan { fill: #008F11; }
