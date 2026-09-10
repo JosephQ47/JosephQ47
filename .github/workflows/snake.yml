@@ -1,0 +1,42 @@
+name: Generate Matrix Snake
+
+on:
+  schedule:
+    # 每天北京时间 08:10 刷新
+    - cron: "10 0 * * *"
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+# 把贡献热力图变成一条绿色的蛇，生成 SVG 提交到 assets/
+# 无需额外 token，用内置 GITHUB_TOKEN 即可
+
+jobs:
+  snake:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate snake (Matrix green)
+        uses: Platane/snk/svg-only@v3
+        with:
+          github_user_name: ${{ github.repository_owner }}
+          outputs: |
+            dist/matrix-snake.svg?color_snake=%2300FF41&color_dots=%230D0208,%23003B00,%23006400,%2300C82C,%2300FF41
+
+      - name: Move into assets and commit
+        run: |
+          mkdir -p assets
+          mv dist/matrix-snake.svg assets/matrix-snake.svg
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/matrix-snake.svg
+          if git diff --staged --quiet; then
+            echo "no change"
+          else
+            git commit -m "chore: refresh matrix snake [skip ci]"
+            git push
+          fi

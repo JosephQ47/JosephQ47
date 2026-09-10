@@ -1,0 +1,47 @@
+name: Generate Matrix Banner
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - gen_matrix.py
+      - .github/workflows/banner.yml
+
+# 跑 gen_matrix.py 生成数字雨横幅与页脚，提交到 assets/
+# 只用 Python 标准库，无需安装依赖。
+# 改配色 / 密度 / 文案：改 gen_matrix.py 后 push，本 workflow 会自动重新生成。
+
+jobs:
+  banner:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate SVG
+        run: python3 gen_matrix.py
+
+      - name: Verify SVG is well-formed
+        run: |
+          python3 - <<'PY'
+          import xml.etree.ElementTree as ET
+          for f in ("assets/matrix-banner.svg", "assets/matrix-footer.svg"):
+              root = ET.parse(f).getroot()
+              n = sum(1 for _ in root.iter())
+              print("%s OK, %d elements" % (f, n))
+          PY
+
+      - name: Commit
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/matrix-banner.svg assets/matrix-footer.svg
+          if git diff --staged --quiet; then
+            echo "no change"
+          else
+            git commit -m "chore: regenerate matrix banner [skip ci]"
+            git push
+          fi
