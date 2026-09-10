@@ -1,4 +1,4 @@
-name: Generate Matrix Metrics
+name: Generate Matrix Calendar
 
 on:
   schedule:
@@ -6,66 +6,23 @@ on:
     - cron: "0 0 * * *"
   workflow_dispatch:
 
-# 说明：本 workflow 把统计图表在你自己的仓库里生成成 SVG 并提交，
-#      不依赖任何第三方公共实例（github-readme-stats 等已停服）。
-# 前置：需要一个 PAT 存到仓库 Secrets，名字 METRICS_TOKEN
-#      生成地址 https://github.com/settings/tokens
-#      经典 token 勾选 read:user；仓库全是 private 时还得加 repo，
-#      不然统计基本是空的。
+# 在本仓库内生成 3D 等距提交日历 SVG 并提交，
+# 不依赖任何第三方公共实例（github-readme-stats 等已停服）。
 #
-# 隐私说明：加了 repo scope 后，metrics 能读到私有仓库，但本配置只输出
-#          汇总数字与语言占比，不含 repositories 插件，所以私有仓库的
-#          名字不会出现在生成的 SVG 里。改配置时请留意这一点。
+# 前置：仓库 Secrets 里需要 METRICS_TOKEN（classic PAT）
+#      scope：read:user；仓库全是 private 时还得加 repo，不然统计是空的。
 #
-# 注意：刻意不在 push 时触发，避免与其他 workflow 并发往 main 提交。
+# 隐私：本配置只用 isocalendar 插件，只输出“哪天有多少提交”的格子，
+#      不含 repositories 插件，私有仓库名不会出现在生成的 SVG 里。
+#
+# 注意：刻意不在 push 时触发，避免与 banner.yml 并发往 main 提交。
 
 jobs:
-  metrics:
+  calendar:
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
-      # ── ① 主统计卡：账号总览 + 语言分布 ──
-      - name: Overview card
-        uses: lowlighter/metrics@latest
-        with:
-          token: ${{ secrets.METRICS_TOKEN }}
-          filename: assets/metrics-overview.svg
-          # 注意：base 里刻意不含 repositories —— 那个插件会把仓库名列在卡片上，
-          #      私有仓库名会因此出现在公开主页。只保留汇总数字。
-          base: header, activity, community
-          config_timezone: Asia/Shanghai
-          config_display: large
-          plugin_languages: yes
-          plugin_languages_limit: 8
-          plugin_languages_colors: >-
-            0:00FF41, 1:00E03A, 2:00C82C, 3:00A82C,
-            4:008F11, 5:00761A, 6:005C14, 7:003B00
-          plugin_languages_details: percentage
-          extras_css: |
-            :root {
-              --color-text:            #008F11;
-              --color-text-emphasis:   #00FF41;
-              --color-text-highlight:  #00FF41;
-              --color-calendar-graph-day-bg: #0D0208;
-            }
-            body, .body, svg {
-              background: #0D0208 !important;
-              color: #008F11 !important;
-              font-family: 'Share Tech Mono', 'Fira Code', monospace !important;
-            }
-            h1, h2, .title, .user, .fullname {
-              color: #00FF41 !important;
-              text-shadow: 0 0 6px rgba(0,255,65,.45) !important;
-            }
-            .value, .field, .name, td, th, tspan, text {
-              color: #008F11 !important;
-              fill: #008F11 !important;
-            }
-            svg { border: 1px solid #008F11 !important; border-radius: 6px !important; }
-            .row.spaced, .column { border-color: #008F11 !important; }
-
-      # ── ② 等距日历：把提交历史画成 3D 绿色网格 ──
       - name: Isometric calendar
         uses: lowlighter/metrics@latest
         with:
@@ -73,28 +30,39 @@ jobs:
           filename: assets/metrics-calendar.svg
           base: ""
           config_timezone: Asia/Shanghai
+          # 先用官方 dark 主题打底，再做少量绿色化。
+          # 比用 !important 硬覆盖可靠：原先网格底板会渲染成白色。
+          config_theme: dark
           plugin_isocalendar: yes
           plugin_isocalendar_duration: full-year
           extras_css: |
-            body, svg { background: #0D0208 !important; }
-            h2, .title { color: #00FF41 !important; }
-            text, tspan, .value, .field {
-              fill: #008F11 !important;
-              color: #008F11 !important;
+            /* 日历格子五级渐变，用 GitHub 标准变量名，
+               isocalendar 的 3D 柱体与底板都读这几个 */
+            :root {
+              --color-calendar-graph-day-bg:    #0D0208;
+              --color-calendar-graph-day-L1-bg: #003B00;
+              --color-calendar-graph-day-L2-bg: #006400;
+              --color-calendar-graph-day-L3-bg: #00C82C;
+              --color-calendar-graph-day-L4-bg: #00FF41;
+              --color-calendar-graph-day-border: #0D0208;
             }
-            svg { border: 1px solid #008F11 !important; border-radius: 6px !important; }
+            body, svg { background: #0D0208; }
+            /* 插件自带标题原本是绿字叠绿框，糊成一团；
+               README 里已经有章节标题，这里隐掉 */
+            h2, .title { display: none; }
+            text, tspan, .value, .field { fill: #008F11; color: #008F11; }
 
       - name: Commit generated SVG
         run: |
           set -euo pipefail
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add assets/metrics-*.svg
+          git add assets/metrics-calendar.svg
           if git diff --staged --quiet; then
             echo "no change"
             exit 0
           fi
-          git commit -m "chore: refresh matrix metrics [skip ci]"
+          git commit -m "chore: refresh matrix calendar [skip ci]"
           for i in 1 2 3; do
             if git pull --rebase --autostash origin main && git push; then
               echo "pushed on attempt $i"

@@ -5,11 +5,9 @@
   ║  Colors: bg #0D0208 · #00FF41 · #008F11 · #003B00                 ║
   ║                                                                   ║
   ║  自托管资源（由 .github/workflows 自动生成，无第三方服务依赖）：   ║
-  ║    assets/matrix-banner.svg    手写数字雨横幅                     ║
-  ║    assets/matrix-footer.svg    手写数字雨页脚                     ║
-  ║    assets/metrics-overview.svg metrics.yml 生成                   ║
-  ║    assets/metrics-calendar.svg metrics.yml 生成                   ║
-  ║    assets/matrix-snake.svg     snake.yml 生成                     ║
+  ║    assets/matrix-banner.svg    手写数字雨横幅   banner.yml         ║
+  ║    assets/matrix-footer.svg    手写数字雨页脚   banner.yml         ║
+  ║    assets/metrics-calendar.svg 3D 等距提交日历  metrics.yml        ║
   ╚═══════════════════════════════════════════════════════════════════╝
 -->
 
@@ -30,7 +28,6 @@
   <img src="https://komarev.com/ghpvc/?username=JosephQ47&color=00FF41&style=flat-square&label=CONNECTIONS" alt="connections" />
   <img src="https://img.shields.io/badge/STATUS-ONLINE-0D0208?style=flat-square&labelColor=003B00&color=00FF41" alt="status" />
   <img src="https://img.shields.io/badge/LOCATION-THE_MATRIX-0D0208?style=flat-square&labelColor=003B00&color=008F11" alt="location" />
-  <img src="https://img.shields.io/badge/PILL-RED-0D0208?style=flat-square&labelColor=003B00&color=00C82C" alt="pill" />
 </p>
 
 ---
@@ -65,7 +62,6 @@ $ echo $PHILOSOPHY
 <img src="https://img.shields.io/badge/PyTorch-0D0208?style=flat-square&logo=pytorch&logoColor=00FF41&labelColor=0D0208" alt="PyTorch" />
 <img src="https://img.shields.io/badge/OpenCV-0D0208?style=flat-square&logo=opencv&logoColor=00FF41&labelColor=0D0208" alt="OpenCV" />
 <img src="https://img.shields.io/badge/DINOv2-0D0208?style=flat-square&logo=meta&logoColor=00FF41&labelColor=0D0208" alt="DINOv2" />
-<img src="https://img.shields.io/badge/NumPy-0D0208?style=flat-square&logo=numpy&logoColor=00FF41&labelColor=0D0208" alt="NumPy" />
 </td></tr>
 <tr><td><b>嵌入式 / 系统</b></td><td>
 <img src="https://img.shields.io/badge/C-0D0208?style=flat-square&logo=c&logoColor=00FF41&labelColor=0D0208" alt="C" />
@@ -77,9 +73,8 @@ $ echo $PHILOSOPHY
 </td></tr>
 <tr><td><b>工程 / 工具</b></td><td>
 <img src="https://img.shields.io/badge/.NET_WinForms-0D0208?style=flat-square&logo=dotnet&logoColor=00FF41&labelColor=0D0208" alt=".NET" />
-<img src="https://img.shields.io/badge/Docker-0D0208?style=flat-square&logo=docker&logoColor=00FF41&labelColor=0D0208" alt="Docker" />
+<img src="https://img.shields.io/badge/ONNX_Runtime-0D0208?style=flat-square&logo=onnx&logoColor=00FF41&labelColor=0D0208" alt="ONNX Runtime" />
 <img src="https://img.shields.io/badge/Git-0D0208?style=flat-square&logo=git&logoColor=00FF41&labelColor=0D0208" alt="Git" />
-<img src="https://img.shields.io/badge/VS_Code-0D0208?style=flat-square&logo=visualstudiocode&logoColor=00FF41&labelColor=0D0208" alt="VS Code" />
 </td></tr>
 </table>
 
@@ -112,24 +107,15 @@ $ cat ./access_policy
 
 ---
 
-## `▸ ./system_stats`
+## `▸ ./activity`
 
-<!-- 由 .github/workflows/metrics.yml 自动生成 -->
-<p align="center">
-  <img src="https://raw.githubusercontent.com/JosephQ47/JosephQ47/main/assets/metrics-overview.svg" alt="metrics overview" width="100%" />
-</p>
-
+<!-- 3D 等距提交日历，由 .github/workflows/metrics.yml 自动生成 -->
 <p align="center">
   <img src="https://raw.githubusercontent.com/JosephQ47/JosephQ47/main/assets/metrics-calendar.svg" alt="commit calendar" width="100%" />
 </p>
 
 <p align="center">
   <img src="https://streak-stats.demolab.com?user=JosephQ47&background=0D0208&border=008F11&stroke=008F11&ring=00FF41&fire=00FF41&currStreakNum=00FF41&sideNums=008F11&currStreakLabel=00FF41&sideLabels=008F11&dates=003B00" alt="streak" />
-</p>
-
-<!-- 由 .github/workflows/snake.yml 自动生成 -->
-<p align="center">
-  <img src="https://raw.githubusercontent.com/JosephQ47/JosephQ47/main/assets/matrix-snake.svg" alt="contribution snake" width="100%" />
 </p>
 
 ---
